@@ -403,9 +403,15 @@ static DH *get_dh2048(void)
   DH *dh;
 
   if ((dh=DH_new()) == NULL) return(NULL);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
   dh->p=BN_bin2bn(dh2048_p,sizeof(dh2048_p),NULL);
   dh->g=BN_bin2bn(dh2048_g,sizeof(dh2048_g),NULL);
   if ((dh->p == NULL) || (dh->g == NULL))
+#else
+  BIGNUM * const dh_p = BN_bin2bn(dh2048_p,sizeof(dh2048_p), NULL);
+  BIGNUM * const dh_g = BN_bin2bn(dh2048_g,sizeof(dh2048_g), NULL);
+  if ((dh_p == NULL) || (dh_g == NULL))
+#endif
     { DH_free(dh); return(NULL); }
   return(dh);
 }
